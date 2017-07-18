@@ -86,6 +86,8 @@ std::string output_frame;
 int marker_resolution = 5; // default marker resolution
 int marker_margin = 2; // default marker margin
 
+std::string markers_base_name;
+
 
 //Debugging utility function
 void draw3dPoints(ARCloud::Ptr cloud, string frame, int color, int id, double rad)
@@ -392,7 +394,7 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
       tf::Transform markerPose = t * m; // marker pose in the camera frame
 
 	  //Publish the transform from the camera to the marker
-	  std::string markerFrame = "ar_marker_";
+	  std::string markerFrame = markers_base_name;
 	  std::stringstream out;
 	  out << id;
 	  std::string id_string = out.str();
@@ -532,6 +534,11 @@ int main(int argc, char *argv[])
     pn.param("marker_resolution", marker_resolution, 5);
     pn.param("marker_margin", marker_margin, 2);
     pn.param("output_frame_from_msg", output_frame_from_msg, false);
+
+    if (!pn.getParam("markers_base_name", markers_base_name)) {
+        ROS_ERROR("Param 'markers_base_name' has to be set.");
+        exit(EXIT_FAILURE);
+    }
 
     if (!output_frame_from_msg && !pn.getParam("output_frame", output_frame)) {
       ROS_ERROR("Param 'output_frame' has to be set if the output frame is not "
